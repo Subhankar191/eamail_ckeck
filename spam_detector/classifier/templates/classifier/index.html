@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spam Detection</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <h1 class="mt-5">Spam Detection</h1>
+        <form id="emailForm" class="mt-4" method="post">
+            {% csrf_token %}
+            <div class="form-group">
+                <textarea class="form-control" id="emailText" rows="5" placeholder="Write your email text here..." required></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary">Check Spam</button>
+        </form>
+        <div class="mt-4" id="result"></div>
+    </div>
+    <script>
+        $(document).ready(function () {
+            $('#emailForm').on('submit', function (e) {
+                e.preventDefault();
+                const emailText = $('#emailText').val();
+
+                $.post('/predict/', {
+                    email_text: emailText,
+                    'csrfmiddlewaretoken': '{{ csrf_token }}'  // Add CSRF token here
+                }, function (data) {
+                    $('#result').html(data.is_spam ? '<div class="alert alert-danger">This email is spam!</div>' : '<div class="alert alert-success">This email is not spam.</div>');
+                }).fail(function () {
+                    $('#result').html('<div class="alert alert-warning">Error processing your request.</div>');
+                });
+            });
+        });
+    </script>
+</body>
+</html>
